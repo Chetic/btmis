@@ -7,3 +7,11 @@ Dependencies
 - bluez 5
 - libdbus-1
 - https://github.com/Chetic/libcanusb
+
+Hardware
+============
+You can probably adapt this to any hardware and OS fairly easily, but here's my suggestion: A Raspberry Pi running Arch Linux with an optimized boot time (since you want it to be ready as soon as possible after starting your car). The trimmed down boot schedule I managed with systemd on my setup will play music from my phone after about 11 seconds. Hopefully I can get this down to something around 5 in the future using the new RPi models, and disabling more unneeded services.
+- Raspberry Pi (incl. SD card)
+- A car supply/switch that will allow the RPi to shut down safely, like this one: http://mausberrycircuits.com/collections/car-power-supply-switches/products/2a-car-supply-switch
+- A CANUSB device: http://www.can232.com/canusb/
+
