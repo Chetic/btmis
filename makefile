@@ -9,7 +9,7 @@ O_FILES := obj/main.o obj/bluezcomm.o
 all: obj bin bin/btmis
 
 bin/btmis: $(O_FILES)
-	$(LD) $(LDFLAGS) $^ -o $@ -lcanusb -ldbus-1
+	$(LD) $(LDFLAGS) $^ -o $@ -lcanusb -ldbus-1 -lftd2xx -lpthread -ldl
 
 obj bin:
 	mkdir -p $@
