@@ -128,7 +128,9 @@ void bluezcomm_adapter_set_powered(bool value) {
 
 bool bluezcomm_adapter_get_powered(void) {
 	dbus_bool_t powered;
-	bluezcomm_get_property("org.bluez.Adapter1", "/org/bluez/hci0", "Powered", &powered);
+	if (bluezcomm_get_property("org.bluez.Adapter1", "/org/bluez/hci0", "Powered", &powered)) {
+		handleDbusError("Error getting powered property: \n", &error);
+	}
 	return (bool)powered;
 }
 
@@ -194,6 +196,10 @@ int bluezcomm_init(char* btmac) {
 		return 1;
 	}
 
+	printf("Adapter powered?: %d\n", bluezcomm_adapter_get_powered());
+	printf("Powering on adapter...\n");
+	bluezcomm_adapter_set_powered(true);
+
 	while (retries--) {
 		if (bluezcomm_device_call("Connect")) {
 			handleDbusError("Error connecting: \n", &error);
@@ -203,7 +209,7 @@ int bluezcomm_init(char* btmac) {
 		if (bluezcomm_device_get_connected()) {
 			break;
 		} else {
-			printf("Waiting for device... Is connected: %d\n", is_connected);
+			printf("Adapter powered?: %d\n", bluezcomm_adapter_get_powered());
 		}
 		usleep(500000);
 	}
