@@ -1,0 +1,15 @@
+[Unit]
+Description=btmis
+Requires=sys-subsystem-bluetooth-devices-hci0.device bluetooth.service
+After=bluetooth.service sys-subsystem-bluetooth-devices-hci0.device
+
+[Service]
+Type=simple
+StandardOutput=journal
+StandardError=journal
+ExecStart=/home/pi/btmis/start_btmis.sh BC:F5:AC:52:F5:69
+KillSignal=SIGINT
+SendSIGKILL=no
+
+[Install]
+WantedBy=bluetooth.target
