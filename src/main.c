@@ -24,15 +24,13 @@ int main(int argc, char* argv[])
 	if (signal(SIGINT, sig_handler) == SIG_ERR) {
 		printf("Can't catch SIGINT\n");
 	}
-// --------------------------------------
-		FT_STATUS ftStatus;
-		unsigned long numDevs;
-		DWORD vid = 0x403, pid = 0xffa8;
-		ftStatus = FT_SetVIDPID(vid, pid);
-		printf("SetVIDPID Status: %d\n", ftStatus);
-		ftStatus = FT_CreateDeviceInfoList(&numDevs);
-		printf("Status: %d | Devices: %d\n", ftStatus, numDevs);
-// --------------------------------------
+	FT_STATUS ftStatus;
+	unsigned long numDevs;
+	DWORD vid = 0x403, pid = 0xffa8;
+	ftStatus = FT_SetVIDPID(vid, pid);
+	printf("SetVIDPID Status: %d\n", ftStatus);
+	ftStatus = FT_CreateDeviceInfoList(&numDevs);
+	printf("Number of CANUSB devices found: %d\n", numDevs);
 	printf("Setting filter...\n");
 	canusb_filter_id(0x1d6);
 	printf("Opening CANUSB device...\n");
@@ -52,7 +50,7 @@ int main(int argc, char* argv[])
 		int i, n;
 		CANMsg* frame;
 
-		if (canusb_get_frame(frame)) { 
+		if (!canusb_get_frame(frame)) { 
 			printf("Received CAN frame: %03x", (unsigned int)frame->id);
 			if (frame->id == 0x1D6)
 			{
