@@ -1,6 +1,7 @@
-#!/bin/bash -xv
+#!/bin/bash 
 mac_addr=$1
 mac_addr_dbus_fmt=${mac_addr//:/_}
+
 while !(journalctl -b -u bluetooth | grep "Endpoint registered"); do sleep 1; done
 echo -e 'power on\nconnect $mac_addr \nquit' | bluetoothctl
 

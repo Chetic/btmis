@@ -15,3 +15,10 @@ You can probably adapt this to any hardware and OS fairly easily, but here's my 
 - A car supply/switch that will allow the RPi to shut down safely, like this one: http://mausberrycircuits.com/collections/car-power-supply-switches/products/2a-car-supply-switch
 - A CANUSB device: http://www.can232.com/canusb/
 
+Installation on archlinux-arm
+============
+* git clone git@github.com:Chetic/btmis
+* cd btmis
+* make
+* ln -s /home/pi/btmis/btmis.service /usr/lib/systemd/system/btmis.service
+
