@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 	if (canusb_init(0)) {
 		printf("ERROR: Failed to initialize canusb\n");
 	}
-	if (bluezcomm_init(argv[2])) {
+	if (bluezcomm_init(argv[1])) {
 		printf("ERROR: Unable to initialize Bluetooth\n");
 		bluezcomm_close();
 	}
