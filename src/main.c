@@ -74,12 +74,17 @@ int main(int argc, char* argv[])
 					bluezcomm_media_prev();
 				}
 			}
+			else
+			{
+				printf("Received CAN frame: %03x\n", frame->id);
+			}
 		}
 		canusb_reset();
 	}
 
 	printf("\rClosing CAN channel... \t\t");
 	canusb_send_cmd("C\r");
+	bluezcomm_close();
 
 	return 0;
 }

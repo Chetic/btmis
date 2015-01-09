@@ -2,7 +2,7 @@
 CC := gcc
 LD := gcc
 AR := ar
-CCFLAGS := -c -ggdb -O0 -Iinclude -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include
+CCFLAGS := -c -ggdb -O0 -Iinclude -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include
 LDFLAGS := -g -Llib
 O_FILES := obj/main.o obj/bluezcomm.o
 
