@@ -6,21 +6,19 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <dbus/dbus.h>
 
 static DBusConnection* bus = NULL;
 static DBusMessage* msg = NULL;
-static DBusMessage* reply = NULL;
 static DBusError error;
 
-const int BLUEZ_MAC_IDX = 20; //Where to place device address
-const char* DEVICE_ADDRESS = "BC_F5_AC_52_F5_69";
-
-const char* BLUEZ_NAME = "org.bluez";
-const char* BLUEZ_DEVICE_OPATH = "/org/bluez/hci0/dev_XX_XX_XX_XX_XX_XX";
-const char* BLUEZ_DEVICE_IFACE = "org.bluez.Device1";
-const char* BLUEZ_MEDIA_OPATH = "/org/bluez/hci0/dev_XX_XX_XX_XX_XX_XX/player0";
-const char* BLUEZ_MEDIA_IFACE = "org.bluez.MediaPlayer1";
+static const int BLUEZ_MAC_IDX = 20; //Where to place device address
+static char BLUEZ_NAME[] = "org.bluez";
+static char BLUEZ_DEVICE_OPATH[] = "/org/bluez/hci0/dev_XX_XX_XX_XX_XX_XX";
+static char BLUEZ_DEVICE_IFACE[] = "org.bluez.Device1";
+static char BLUEZ_MEDIA_OPATH[] = "/org/bluez/hci0/dev_XX_XX_XX_XX_XX_XX/player0";
+static char BLUEZ_MEDIA_IFACE[] = "org.bluez.MediaPlayer1";
 
 int terminateOnError(const char* msg, const DBusError* error) {
 	if (dbus_error_is_set(error)) {
@@ -53,9 +51,10 @@ static int bluezcomm_device_call(const char* btmac, const char* method) {
 	}
 
 	dbus_connection_flush(bus);
+	return 0;
 }
 
-static int bluezcomm_media_call(const char* btmac, const char* method) {
+static int bluezcomm_media_call(const char* method) {
 	msg = dbus_message_new_method_call(BLUEZ_NAME, BLUEZ_MEDIA_OPATH,
 			BLUEZ_MEDIA_IFACE, method);
 	if (msg == NULL) {
@@ -71,9 +70,17 @@ static int bluezcomm_media_call(const char* btmac, const char* method) {
 	}
 
 	dbus_connection_flush(bus);
+	return 0;
 }
 
-int bluezcomm_init(void) {
+int bluezcomm_init(char* btmac) {
+	if (strlen(btmac) != 17) {
+		perror("Invalid MAC address length\n");
+		return 1;
+	}
+    memcpy(BLUEZ_DEVICE_OPATH + BLUEZ_MAC_IDX, btmac, 17);
+    memcpy(BLUEZ_MEDIA_OPATH + BLUEZ_MAC_IDX, btmac, 17);
+
 	dbus_error_init(&error);
 
 	bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
@@ -86,7 +93,8 @@ int bluezcomm_init(void) {
 		return 1;
 	}
 
-	if (bluezcomm_device_call(DEVICE_ADDRESS, "Connect")) {
+	if (bluezcomm_device_call(btmac, "Connect")) {
+		fprintf(stderr, "Bluez has no owner on the bus!\n");
 		return 1;
 	}
 
@@ -98,13 +106,13 @@ int bluezcomm_close(void) {
 }
 
 int bluezcomm_media_playpause(void) {
-	return bluezcomm_media_call(DEVICE_ADDRESS, "Pause");
+	return bluezcomm_media_call("Pause");
 }
 
 int bluezcomm_media_next(void) {
-	return bluezcomm_media_call(DEVICE_ADDRESS, "Next");
+	return bluezcomm_media_call("Next");
 }
 
 int bluezcomm_media_prev(void) {
-	return bluezcomm_media_call(DEVICE_ADDRESS, "Previous");
+	return bluezcomm_media_call("Previous");
 }

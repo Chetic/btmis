@@ -14,12 +14,10 @@ void sig_handler(int signo)
 
 int main(int argc, char* argv[])
 {
-	bluezcomm_init();
-
-	if (argc < 2)
+	if (argc < 3)
 	{
 		printf(
-				"Too few arguments. Please provide the path to your serial port (e.g. /dev/ttyUSB0)\n");
+				"Too few arguments. Example usage: btmis /dev/ttyUSB0 AB_CD_EF_01_02_03\n");
 		exit(1);
 	}
 
@@ -27,6 +25,7 @@ int main(int argc, char* argv[])
 		printf("\ncan't catch SIGINT\n");
 
 	canusb_init(argv[1]);
+	bluezcomm_init(argv[2]);
 
 	printf("Version:\t");
 	canusb_print_version();
@@ -63,11 +62,17 @@ int main(int argc, char* argv[])
 				printf("Steering wheel: %02x%02x\n", frame->data[0], frame->data[1]);
 
 				if ((frame->data[0] & 0x01))
-					system("./playpause.sh");
+				{
+					bluezcomm_media_playpause();
+				}
 				if ((frame->data[0] & 0x20))
-					system("./next.sh");
+				{
+					bluezcomm_media_next();
+				}
 				if ((frame->data[0] & 0x10))
-					system("./prev.sh");
+				{
+					bluezcomm_media_prev();
+				}
 			}
 		}
 		canusb_reset();
