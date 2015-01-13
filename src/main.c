@@ -39,10 +39,10 @@ int main(int argc, char* argv[])
 	canusb_disable_timestamps();
 	printf("Setting CANUSB to 100kbps... \t");
 	canusb_send_cmd("S3\r");
-	//printf("Setting acceptance code... \t");
-	//canusb_send_cmd("M00001D60\r");
-	//printf("Setting acceptance mask... \t");
-	//canusb_send_cmd("m00001FF0\r");
+	printf("Setting acceptance code... \t");
+	canusb_send_cmd("MFFFFF3AC\r");
+	printf("Setting acceptance mask... \t");
+	canusb_send_cmd("mFFFFF001\r");
 	printf("Opening CAN channel... \t\t");
 	canusb_send_cmd("O\r");
 
