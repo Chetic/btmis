@@ -35,8 +35,6 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	printf("Disabling timestamps... \t");
-	canusb_disable_timestamps();
 	printf("Setting CANUSB to 100kbps... \t");
 	canusb_send_cmd("S3\r");
 	printf("Enabling filter on ID 0x1D6... \t");
