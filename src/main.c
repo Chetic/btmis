@@ -17,73 +17,58 @@ int main(int argc, char* argv[])
 {
 	setbuf(stdout, NULL);
 
-	if (argc < 3)
-	{
-		printf(
-				"Too few arguments. Example usage: btmis /dev/ttyUSB0 AB_CD_EF_01_02_03\n");
+	if (argc != 2) {
+		printf("Incorrect number of arguments. Example usage: %s AB_CD_EF_01_02_03\n", argv[0]);
 		exit(1);
 	}
-
-	if (signal(SIGINT, sig_handler) == SIG_ERR)
-		printf("\ncan't catch SIGINT\n");
-
-	canusb_init(argv[1]);
-
-	if (bluezcomm_init(argv[2])) {
-		printf("Unable to initialize Bluetooth. Shutting down...\n");
-		bluezcomm_close();
-		exit(1);
+	if (signal(SIGINT, sig_handler) == SIG_ERR) {
+		printf("Can't catch SIGINT\n");
 	}
-
-	printf("Setting CANUSB to 100kbps... \t");
-	canusb_send_cmd("S3\r");
-	printf("Enabling filter on ID 0x1D6... \t");
 	canusb_filter_id(0x1d6);
-	printf("Opening CAN channel... \t\t");
-	canusb_send_cmd("O\r");
+	if (canusb_init(0)) {
+		printf("ERROR: Failed to initialize canusb\n");
+	}
+	if (bluezcomm_init(argv[2])) {
+		printf("ERROR: Unable to initialize Bluetooth\n");
+		bluezcomm_close();
+	}
 
-	CANFrame lastFrame;
-	canusb_reset_frame(&lastFrame);
+	CANMsg lastFrame;
 
 	while (s_running)
 	{
 		int i, n;
-		CANFrame* frame;
-
-		n = canusb_poll();
+		CANMsg* frame;
 
 		for (i = 0; i < n; i++)
 		{
-			frame = canusb_get_frame(i);
-
-			printf("Received CAN frame: %03x\n", frame->id);
-
-			if (frame->id == 0x1D6)
-			{
-				printf("Steering wheel: %02x%02x\n", frame->data[0], frame->data[1]);
-
-				if (!(lastFrame.data[0] & 0x01) && (frame->data[0] & 0x01))
+			if (canusb_get_frame(frame)) { 
+				printf("Received CAN frame: %03x", (unsigned int)frame->id);
+				if (frame->id == 0x1D6)
 				{
-					bluezcomm_media_playpause();
-				}
-				if (!(lastFrame.data[0] & 0x20) && (frame->data[0] & 0x20))
-				{
-					bluezcomm_media_next();
-				}
-				if (!(lastFrame.data[0] & 0x10) && (frame->data[0] & 0x10))
-				{
-					bluezcomm_media_prev();
-				}
+					printf("(Steering wheel: %02x%02x)", frame->data[0], frame->data[1]);
 
-				memcpy(&lastFrame, frame, sizeof(CANFrame));
+					if (!(lastFrame.data[0] & 0x01) && (frame->data[0] & 0x01))
+					{
+						bluezcomm_media_playpause();
+					}
+					if (!(lastFrame.data[0] & 0x20) && (frame->data[0] & 0x20))
+					{
+						bluezcomm_media_next();
+					}
+					if (!(lastFrame.data[0] & 0x10) && (frame->data[0] & 0x10))
+					{
+						bluezcomm_media_prev();
+					}
+					memcpy(&lastFrame, frame, sizeof(CANMsg));
+				}
+				printf("\n");
 			}
 		}
-		canusb_reset();
 	}
 
-	printf("\rClosing CAN channel... \t\t");
-	canusb_send_cmd("C\r");
 	bluezcomm_close();
+	canusb_close();
 
 	return 0;
 }
